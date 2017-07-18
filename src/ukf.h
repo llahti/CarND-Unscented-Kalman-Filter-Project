@@ -6,11 +6,20 @@
 #include <vector>
 #include <string>
 #include <fstream>
+#include "tools.h"
 
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
 
 class UKF {
+
+private:
+  // previous timestamp
+  long long previous_timestamp_;
+
+  // tool object used to compute Jacobian and RMSE
+  Tools tools;
+
 public:
 
   ///* initially set to false, set to true in first call of ProcessMeasurement
@@ -27,6 +36,9 @@ public:
 
   ///* state covariance matrix
   MatrixXd P_;
+
+  ///* sigma points matrix
+  MatrixXd Xsig_;
 
   ///* predicted sigma points matrix
   MatrixXd Xsig_pred_;
@@ -76,6 +88,9 @@ public:
   ///* Sigma point spreading parameter
   double lambda_;
 
+  ///* Augmented Sigma point spreading parameter
+  double lambda_aug_;
+
 
 
 
@@ -89,6 +104,8 @@ public:
    * Destructor
    */
   virtual ~UKF();
+
+  void FirstUpdate(MeasurementPackage measurement_pack);
 
   /**
    * ProcessMeasurement
@@ -117,8 +134,9 @@ public:
 
   /**
    * @brief GenerateSigmaPoints
-   * @param Xsig_out Sigmapoint matrix
+   * @param Xsig_out Generated sigmapoints matrix
    */
+  //void GenerateSigmaPoints(MatrixXd* Xsig_out);
   void GenerateSigmaPoints(MatrixXd* Xsig_out);
 
   /**
@@ -126,10 +144,17 @@ public:
    * @param Xsig_out
    */
   void AugmentedSigmaPoints(MatrixXd* Xsig_out);
-  void SigmaPointPrediction(MatrixXd* Xsig_out);
-  void PredictMeanAndCovariance(VectorXd* x_pred, MatrixXd* P_pred);
-  void PredictRadarMeasurement(VectorXd* z_out, MatrixXd* S_out);
-  void UpdateState(VectorXd* x_out, MatrixXd* P_out);
+
+  void SigmaPointPrediction(MatrixXd* Xsig_out, MatrixXd* Xsig_aug_in, double delta_t);
+
+  void PredictMeanAndCovariance( MatrixXd* Xsig_pred);
+
+  void PredictRadarMeasurement(VectorXd* z_out, MatrixXd* S_out, MatrixXd& Xsig_pred, int n_x, int n_aug, int n_z, double lambda,
+                               double std_radr, double std_radphi, double std_radrd);
+
+  void UpdateState(VectorXd* x_out, MatrixXd* P_out, MatrixXd& Xsig_pred, VectorXd& x,
+                   MatrixXd& P, MatrixXd& Zsig, VectorXd& z_pred, MatrixXd& S, VectorXd& z,
+                   int n_x, int n_aug, int n_z, double lambda);
 };
 
 #endif /* UKF_H */
