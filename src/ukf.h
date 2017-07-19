@@ -37,6 +37,9 @@ public:
   ///* state covariance matrix
   MatrixXd P_;
 
+  ///* Measurement covariance matrix for radar measurements
+  MatrixXd S_rad_;
+
   ///* sigma points matrix
   MatrixXd Xsig_;
 
@@ -91,14 +94,15 @@ public:
   ///* Augmented Sigma point spreading parameter
   double lambda_aug_;
 
-
-
+  ///* Length of radar measurement vector
+  int n_z_rad_;
 
 
   /**
    * Constructor
    */
   UKF();
+
 
   /**
    * Destructor
@@ -107,11 +111,13 @@ public:
 
   void FirstUpdate(MeasurementPackage measurement_pack);
 
+
   /**
    * ProcessMeasurement
    * @param meas_package The latest measurement data of either radar or laser
    */
   void ProcessMeasurement(MeasurementPackage meas_package);
+
 
   /**
    * Prediction Predicts sigma points, the state, and the state covariance
@@ -120,11 +126,13 @@ public:
    */
   void Prediction(double delta_t);
 
+
   /**
    * Updates the state and the state covariance matrix using a laser measurement
    * @param meas_package The measurement at k+1
    */
   void UpdateLidar(MeasurementPackage meas_package);
+
 
   /**
    * Updates the state and the state covariance matrix using a radar measurement
@@ -132,12 +140,13 @@ public:
    */
   void UpdateRadar(MeasurementPackage meas_package);
 
+
   /**
    * @brief GenerateSigmaPoints
    * @param Xsig_out Generated sigmapoints matrix
    */
-  //void GenerateSigmaPoints(MatrixXd* Xsig_out);
   void GenerateSigmaPoints(MatrixXd* Xsig_out);
+
 
   /**
    * @brief AugmentedSigmaPoints
@@ -149,12 +158,9 @@ public:
 
   void PredictMeanAndCovariance( MatrixXd* Xsig_pred);
 
-  void PredictRadarMeasurement(VectorXd* z_out, MatrixXd* S_out, MatrixXd& Xsig_pred, int n_x, int n_aug, int n_z, double lambda,
-                               double std_radr, double std_radphi, double std_radrd);
+  void PredictRadarMeasurement(VectorXd* z_pred_out, MatrixXd* Zsig_out);
 
-  void UpdateState(VectorXd* x_out, MatrixXd* P_out, MatrixXd& Xsig_pred, VectorXd& x,
-                   MatrixXd& P, MatrixXd& Zsig, VectorXd& z_pred, MatrixXd& S, VectorXd& z,
-                   int n_x, int n_aug, int n_z, double lambda);
+  void UpdateRadarState(MatrixXd* Zsig, VectorXd* z_pred, VectorXd* z);
 };
 
 #endif /* UKF_H */
