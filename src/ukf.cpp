@@ -107,7 +107,9 @@ UKF::UKF() {
   Xsig_aug_.fill(0.0);
 
   // Initialize weights
-  InitWeights();
+  weights_ = VectorXd(n_sp_xaug_);
+  weights_.fill(0.5 / float(n_aug_ + lambda_aug_));
+  weights_(0) = lambda_aug_/(lambda_aug_+n_aug_);
 
   // Initialize NIS
   NIS_laser_ = 0.0;
@@ -116,19 +118,7 @@ UKF::UKF() {
 
 UKF::~UKF() {}
 
-/**
- * Initializes Unscented Kalman filter
- */
-void UKF::InitWeights()
-{
-  weights_ = VectorXd(n_sp_xaug_);
-  weights_(0) = lambda_aug_/(lambda_aug_+n_aug_);
-  double f_ = n_aug_+lambda_aug_;
-  for (int i=1; i<n_sp_xaug_; i++) {
-    //double weight = 0.5/f_;
-    weights_(i) = 0.5/f_;
-  }
-}
+
 
 /**
  * @brief UKF::FirstUpdate handles the very first update cycle and initializes state vector.

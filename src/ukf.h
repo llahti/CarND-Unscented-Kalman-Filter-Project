@@ -20,8 +20,6 @@ private:
   // tool object used to compute Jacobian and RMSE
   Tools tools;
 
-  void InitWeights();
-
 public:
 
   ///* initially set to false, set to true in first call of ProcessMeasurement
