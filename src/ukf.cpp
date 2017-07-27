@@ -224,9 +224,9 @@ void UKF::UpdateLidar(MeasurementPackage meas_package) {
   //VectorXd y = z - z_pred;
   VectorXd y = meas_package.raw_measurements_ - z_pred;
   MatrixXd Ht = H_lidar_.transpose();
-  MatrixXd S = H_lidar_ * P_ * Ht + R_lidar_;
-  MatrixXd Si = S.inverse();
   MatrixXd PHt = P_ * Ht;
+  MatrixXd S = H_lidar_ * PHt + R_lidar_;
+  MatrixXd Si = S.inverse();
   MatrixXd K = PHt * Si;
 
   //new estimate
