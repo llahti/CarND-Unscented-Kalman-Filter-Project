@@ -37,6 +37,9 @@ public:
   ///* state covariance matrix
   MatrixXd P_;
 
+  ///* state covariance matrix for augmented sigmapoints
+  MatrixXd P_aug_;
+
   ///* Measurement covariance matrix for radar measurements
   MatrixXd S_rad_;
 
@@ -97,6 +100,13 @@ public:
   ///* Length of radar measurement vector
   int n_z_rad_;
 
+  ///* Length of lidar measurement vector
+  int n_z_lidar_;
+
+  ///* H matrix for Lidar update step
+  MatrixXd H_lidar_;
+  MatrixXd R_lidar_;  // Measurement Covariance matrix
+
 
   /**
    * Constructor
@@ -143,22 +153,24 @@ public:
 
   /**
    * @brief GenerateSigmaPoints
-   * @param Xsig_out Generated sigmapoints matrix
    */
-  void GenerateSigmaPoints(MatrixXd* Xsig_out);
+  void GenerateSigmaPoints();
 
 
   /**
    * @brief AugmentedSigmaPoints
-   * @param Xsig_out
    */
-  void AugmentedSigmaPoints(MatrixXd* Xsig_out);
+  void AugmentedSigmaPoints();
 
-  void SigmaPointPrediction(MatrixXd* Xsig_out, MatrixXd* Xsig_aug_in, double delta_t);
+  void SigmaPointPrediction(double delta_t);
 
-  void PredictMeanAndCovariance( MatrixXd* Xsig_pred);
+  void PredictMeanAndCovariance();
+
+  void PredictLidarMeasurement(VectorXd* z_pred_out);
 
   void PredictRadarMeasurement(VectorXd* z_pred_out, MatrixXd* Zsig_out);
+
+  void UpdateLidarState(MatrixXd* Zsig, VectorXd* z_pred, VectorXd* z);
 
   void UpdateRadarState(MatrixXd* Zsig, VectorXd* z_pred, VectorXd* z);
 };
