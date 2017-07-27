@@ -388,25 +388,13 @@ void UKF::PredictMeanAndCovariance() {
  * @param z_pred_out
  */
 void UKF::PredictLidarMeasurement(VectorXd *z_pred_out) {
-  //create matrix for sigma points in measurement space
+  //create matrix for sigma points in measurement space and get px and py
   MatrixXd Zsig = MatrixXd(n_z_lidar_, n_sp_xaug_);
+  Zsig = Xsig_pred_.block(0, 0, n_z_lidar_, n_sp_xaug_);
 
-  //mean predicted measurement
+  //calculate predicted measurement
   VectorXd z_pred = VectorXd(n_z_lidar_);
-
-  //transform sigma points into measurement space
-  for (int i = 0; i < n_sp_xaug_; i++) {  //2n+1 simga points
-    // measurement model
-    Zsig(0,i) = Xsig_pred_(0,i);  // px
-    Zsig(1,i) = Xsig_pred_(1,i);  // py
-  }
-
-  //calculate mean predicted measurement
-  //predict state mean
-  z_pred.fill(0.0);
-  for (int i=0; i < n_sp_xaug_; i++){
-    z_pred += Zsig.col(i) * weights_(i);
-  }
+  z_pred = Zsig * weights_;
 
   //write result
   *z_pred_out = z_pred;
@@ -438,9 +426,20 @@ void UKF::PredictRadarMeasurement(VectorXd* z_pred_out, MatrixXd* Zsig_out) {
     double v2 = sin(yaw)*v;
 
     // measurement model
+    //   r = range or distance
+    //   phi = angle
+    //   r_dot = change rate of r
     Zsig(0,i) = sqrt(p_x*p_x + p_y*p_y);                        //r
-    Zsig(1,i) = atan2(p_y,p_x);                                 //phi
-    Zsig(2,i) = (p_x*v1 + p_y*v2 ) / sqrt(p_x*p_x + p_y*p_y);   //r_dot
+    // Guard agains case where p_x and p_y are both zero which leads to undefined result
+    if (p_x < 0.0001 && p_y < 0.0001) {
+      Zsig(1,i) = 0;  // phi
+      Zsig(2,i) = 0;  // r_dot
+    }
+    else {
+      Zsig(1,i) = atan2(p_y,p_x);                                 //phi
+      Zsig(2,i) = (p_x*v1 + p_y*v2 ) / sqrt(p_x*p_x + p_y*p_y);   //r_dot
+    }
+
   }
   //calculate mean predicted measurement
   //predict state mean
