@@ -16,7 +16,7 @@ UKF::UKF() {
   use_laser_ = true;
 
   // if this is false, radar measurements will be ignored (except during init)
-  use_radar_ = false;
+  use_radar_ = true;
 
   // Initial state is "not initialized". UKF is initialized properly during the very first measurement update.
   is_initialized_ = false;
@@ -163,7 +163,7 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
   /*****************************************************************************
    *  Initialization
    ****************************************************************************/
-  std::cout << "Meas: " << meas_package.raw_measurements_ << std::endl;
+  //std::cout << "Meas: " << meas_package.raw_measurements_ << std::endl;
   if (!is_initialized_) {
       // Init first measurement
       FirstUpdate(meas_package);
@@ -208,18 +208,18 @@ void UKF::Prediction(double delta_t) {
   vector, x_. Predict sigma points, the state, and the state covariance matrix.
   */
 
-  std::cout << "x_ before prediction\n" << x_ << std::endl;
+  //std::cout << "x_ before prediction\n" << x_ << std::endl;
   // 1. Generate sigma points
   GenerateSigmaPoints();
-  std::cout << "Sigma Points\n" << Xsig_ << std::endl << std::endl;
+  //std::cout << "Sigma Points\n" << Xsig_ << std::endl << std::endl;
   // 2. Predict sigma points
   AugmentedSigmaPoints();
-  std::cout << "Augmented Sigma Points\n" << Xsig_aug_ << std::endl << std::endl;
+  //std::cout << "Augmented Sigma Points\n" << Xsig_aug_ << std::endl << std::endl;
   SigmaPointPrediction(delta_t);
-  std::cout << "Predicted Sigma Points\n" << Xsig_pred_ << std::endl << std::endl;
+  //std::cout << "Predicted Sigma Points\n" << Xsig_pred_ << std::endl << std::endl;
   // 3. Predict mean and covariance matrix
   PredictMeanAndCovariance();
-  std::cout << "x_ after prediction\n" << x_ << std::endl;
+  //std::cout << "x_ after prediction\n" << x_ << std::endl;
 }
 
 /**
@@ -401,10 +401,10 @@ void UKF::PredictMeanAndCovariance() {
       // Calculate difference
       VectorXd x_diff = Xsig_pred_.col(i) - x_;
       // Normalize angles. TODO: Refactor to separate function
-      std::cout << "angle before norm:" << x_diff(3) << std::endl;
+      //std::cout << "angle before norm:" << x_diff(3) << std::endl;
       while (x_diff(3) >  M_PI) x_diff(3) -= 2.*M_PI;
       while (x_diff(3) < -M_PI) x_diff(3) += 2.*M_PI;
-      std::cout << "angle after norm: " << x_diff(3) << std::endl;
+      //std::cout << "angle after norm: " << x_diff(3) << std::endl;
       P_ = P_ + weights_(i) * x_diff * x_diff.transpose();
   }
 }
@@ -537,6 +537,7 @@ void UKF::UpdateRadarState(MatrixXd* Zsig, VectorXd* z_pred, VectorXd* z)
 
   //create matrix for cross correlation Tc
   MatrixXd Tc = MatrixXd(n_x_, n_z_rad_);
+  Tc.fill(0.0);
 
   //calculate cross correlation matrix
   for (int i=0; i < n_sp_xaug_; i++) {
