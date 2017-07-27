@@ -367,10 +367,8 @@ void UKF::SigmaPointPrediction(double delta_t) {
 
 void UKF::PredictMeanAndCovariance() {
   //predict state mean
-  x_.fill(0.0);
-  for (int i=0; i < n_sp_xaug_; i++){
-    x_ += Xsig_pred_.col(i) * weights_(i);
-  }
+  x_ = Xsig_pred_ * weights_;
+
   //predict state covariance matrix
   P_.fill(0.0);
   for (int i=0; i < n_sp_xaug_; i++){
