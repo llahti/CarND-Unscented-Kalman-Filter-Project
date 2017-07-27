@@ -441,12 +441,8 @@ void UKF::PredictRadarMeasurement(VectorXd* z_pred_out, MatrixXd* Zsig_out) {
     }
 
   }
-  //calculate mean predicted measurement
-  //predict state mean
-  z_pred.fill(0.0);
-  for (int i=0; i < n_sp_xaug_; i++){
-    z_pred += Zsig.col(i) * weights_(i);
-  }
+  //calculate predicted measurement
+  z_pred = Zsig * weights_;
 
   //calculate measurement covariance matrix S
   S_rad_.fill(0.0);
