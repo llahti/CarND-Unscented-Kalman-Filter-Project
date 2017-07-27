@@ -23,13 +23,6 @@ public:
   * A helper method to calculate RMSE.
   */
   VectorXd CalculateRMSE(const vector<VectorXd> &estimations, const vector<VectorXd> &ground_truth);
-
-  /**
-   * @brief Polar2Cartesian Converts polar coordinates to cartesian coordinates
-   * @param polar vector of rho, theta, rho_dot
-   * @return  vector of px, py, vx, vy
-   */
-  VectorXd Polar2Cartesian(VectorXd &polar);
 };
 
 #endif /* TOOLS_H_ */

@@ -20,6 +20,8 @@ private:
   // tool object used to compute Jacobian and RMSE
   Tools tools;
 
+  void InitWeights();
+
 public:
 
   ///* initially set to false, set to true in first call of ProcessMeasurement
@@ -105,8 +107,12 @@ public:
 
   ///* H matrix for Lidar update step
   MatrixXd H_lidar_;
-  MatrixXd R_lidar_;  // Measurement Covariance matrix
+  MatrixXd R_lidar_;  // Measurement Covariance matrix for lidar
+  MatrixXd R_radar_;  // Measurement Covariance matrix for radar
 
+  ///* NIS
+  double NIS_laser_;
+  double NIS_radar_;
 
   /**
    * Constructor

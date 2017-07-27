@@ -139,6 +139,13 @@ int main()
           auto msg = "42[\"estimate_marker\"," + msgJson.dump() + "]";
           // std::cout << msg << std::endl;
           ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
+
+          // output the NIS values
+          if (meas_package.sensor_type_ == MeasurementPackage::LASER) {
+            std::cout << "NIS-laser: " << ukf.NIS_laser_ << "\n";
+          } else if (meas_package.sensor_type_ == MeasurementPackage::RADAR) {
+            std::cout << "NIS-radar: " << ukf.NIS_radar_ << "\n";
+          }
 	  
         }
       } else {
