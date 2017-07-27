@@ -374,11 +374,9 @@ void UKF::PredictMeanAndCovariance() {
   for (int i=0; i < n_sp_xaug_; i++){
       // Calculate difference
       VectorXd x_diff = Xsig_pred_.col(i) - x_;
-      // Normalize angles. TODO: Refactor to separate function
-      //std::cout << "angle before norm:" << x_diff(3) << std::endl;
-      while (x_diff(3) >  M_PI) x_diff(3) -= 2.*M_PI;
-      while (x_diff(3) < -M_PI) x_diff(3) += 2.*M_PI;
-      //std::cout << "angle after norm: " << x_diff(3) << std::endl;
+      // Normalize angle
+      x_diff(3) = tools.NormalizeAngle(x_diff(3));
+
       P_ = P_ + weights_(i) * x_diff * x_diff.transpose();
   }
 }
@@ -449,9 +447,8 @@ void UKF::PredictRadarMeasurement(VectorXd* z_pred_out, MatrixXd* Zsig_out) {
   for (int i=0; i < n_sp_xaug_; i++){
       // Calculate difference
       VectorXd z_diff = Zsig.col(i) - z_pred;
-      // Normalize angles
-      while (z_diff(1) > M_PI) z_diff(1)-=2.*M_PI;
-      while (z_diff(1) < -M_PI) z_diff(1)+=2.*M_PI;
+      // Normalize angle
+      z_diff(1) = tools.NormalizeAngle(z_diff(1));
       S_rad_ = S_rad_ + weights_(i) * z_diff * z_diff.transpose();
   }
   S_rad_ += R_radar_;
@@ -472,14 +469,12 @@ void UKF::UpdateRadarState(MatrixXd* Zsig, VectorXd* z_pred, VectorXd* z)
   for (int i=0; i < n_sp_xaug_; i++) {
     // Calculate difference
     VectorXd x_diff = Xsig_pred_.col(i) - x_;
-    //angle normalization
-    while (x_diff(3)> M_PI) x_diff(3)-=2.*M_PI;
-    while (x_diff(3)<-M_PI) x_diff(3)+=2.*M_PI;
+    // Normalize angle
+    x_diff(3) = tools.NormalizeAngle(x_diff(3));
 
     VectorXd z_diff = (*Zsig).col(i) - (*z_pred);
-    //angle normalization
-    while (z_diff(1)> M_PI) z_diff(1)-=2.*M_PI;
-    while (z_diff(1)<-M_PI) z_diff(1)+=2.*M_PI;
+    // Normalize angle
+    z_diff(1) = tools.NormalizeAngle(z_diff(1));
 
     Tc = Tc + weights_(i) * x_diff * z_diff.transpose();
 
@@ -489,9 +484,8 @@ void UKF::UpdateRadarState(MatrixXd* Zsig, VectorXd* z_pred, VectorXd* z)
 
   // Residual
   VectorXd z_diff = (*z) - (*z_pred);
-  //angle normalization
-  while (z_diff(1)> M_PI) z_diff(1)-=2.*M_PI;
-  while (z_diff(1)<-M_PI) z_diff(1)+=2.*M_PI;
+  // Normalize angle
+  z_diff(1) = tools.NormalizeAngle(z_diff(1));
 
   //update state mean and covariance matrix
   x_ = x_ + K * z_diff;
