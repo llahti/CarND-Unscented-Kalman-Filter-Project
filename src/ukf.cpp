@@ -41,8 +41,9 @@ UKF::UKF() {
 
   // initial covariance matrix
   P_ = MatrixXd(n_x_, n_x_);
-  P_ << 1., 0., 0., 0., 0.,
-        0., 1., 0., 0., 0.,
+  // You can also initialize P_ separately for lidar and radar in UKF::FirstUpdate()
+  P_ << 0.5, 0., 0., 0., 0.,
+        0., 0.5, 0., 0., 0.,
         0., 0., 1., 0., 0.,
         0., 0., 0., 1., 0.,
         0., 0., 0., 0., 1.;
@@ -136,13 +137,6 @@ void UKF::FirstUpdate(MeasurementPackage measurement_pack) {
     // Radar do not have enough information to predict
     // speed, yaw and yaw rate so initialize them as zero
     x_ << rho * cos(phi), rho * sin(phi), 0.0, 0.0, 0.0;
-
-    // Initialize P_ matrix with measurement type specific values
-    P_ << 0.5, 0., 0., 0., 0.,
-          0., 0.5, 0., 0., 0.,
-          0., 0., 1., 0., 0.,
-          0., 0., 0., 1., 0.,
-          0., 0., 0., 0., 1.;
    }
   else if (measurement_pack.sensor_type_ == MeasurementPackage::LASER) {
     /**
@@ -154,12 +148,6 @@ void UKF::FirstUpdate(MeasurementPackage measurement_pack) {
           0.0,
           0.0,
           0.0;
-    // Initialize P_ matrix with measurement type specific values
-    P_ << 0.5, 0., 0., 0., 0.,
-          0., 0.5, 0., 0., 0.,
-          0., 0., 1., 0., 0.,
-          0., 0., 0., 1., 0.,
-          0., 0., 0., 0., 1.;
   }
   previous_timestamp_ = measurement_pack.timestamp_;
 
